@@ -14,13 +14,10 @@ Different types of evidence may be used to determine a term annotation for a gen
 The annotation data contains several fields in the GO Annotation File (GAF) 2.2 format. More information on these fields can be found here http://geneontology.org/docs/go-annotation-file-gaf-format-2.2/.
 
 ## Environmnet
-
 Virtual environment created through conda using Python 3.8.5
 ### Dependencies
 For data preprocessing:
-
     biopython 1.78
-    pandas 1.1.1
 
 ## Download and process datasets
 
