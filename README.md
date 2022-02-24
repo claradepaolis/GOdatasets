@@ -16,8 +16,8 @@ The annotation data contains several fields in the GO Annotation File (GAF) 2.2 
 ## Environmnet
 Virtual environment created through conda using Python 3.8.5
 ### Dependencies
-For data preprocessing:
-    biopython 1.78
+For data preprocessing:  
+* biopython 1.78
 
 ## Download and process datasets
 
