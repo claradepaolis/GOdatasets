@@ -1,7 +1,7 @@
 #!/bin/bash
 
 DATA_DIR="./GOdataset/raw"  #specify where to save data files
-CODE_DIR="." # specify code directory
+CODE_DIR=$(pwd) # specify code directory
 mkdir -p $DATA_DIR
 
 # Sequence data
