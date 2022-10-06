@@ -10,15 +10,14 @@ If a term appears as annotated for a gene, it means that this gene is believed t
 ### Evidence
 Different types of evidence may be used to determine a term annotation for a gene. More information about evidence can be found here: http://geneontology.org/docs/guide-go-evidence-codes/. In this repo, we filter only terms with experimental evidence codes, but this can be modified within the file `process_goa.py`.   
 
+### Other available information
+The annotation data contains several fields in the GO Annotation File (GAF) 2.2 format. More information on these fields can be found here http://geneontology.org/docs/go-annotation-file-gaf-format-2.2/.
 
 ## Environmnet
-
 Virtual environment created through conda using Python 3.8.5
 ### Dependencies
-For data preprocessing:
-
-    biopython 1.78
-    pandas 1.1.1
+For data preprocessing:  
+* biopython 1.78
 
 ## Download and process datasets
 
