@@ -20,4 +20,4 @@ echo "============================================================"
 echo "Sequence files ready. Running 'python process_trembl.py' to create SQLite lookup table"
 echo "============================================================"
 cd $CODE_DIR
-python create_dataset/process_trembl.py $DATA_DIR
+python process_trembl.py $DATA_DIR

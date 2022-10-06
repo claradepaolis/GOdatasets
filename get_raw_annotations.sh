@@ -14,4 +14,4 @@ echo "============================================================"
 echo "GO Annotation File ready. Running 'python process_goa.py' to extract experiment evidence codes"
 echo "============================================================"
 cd $CODE_DIR
-python create_dataset/process_goa.py $DATA_DIR goa_uniprot_gcrp.gaf
+python process_goa.py $DATA_DIR goa_uniprot_gcrp.gaf
