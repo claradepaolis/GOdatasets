@@ -1,9 +1,12 @@
 import os
 import sys
 import json   
-from Bio.UniProt import GOA
+import GOA
 from tqdm import tqdm
 
+
+def file_length(filename):
+    return sum(1 for line in open(filename))
 
 if __name__ == '__main__':
 
@@ -18,10 +21,12 @@ if __name__ == '__main__':
 
     count = 0
     ok_evidence = ['TAS', 'EXP', 'IC', 'IPI', 'IDA', 'IMP', 'IGI', 'IEP']
+    gaf_filelen = file_length(annotations_dataset)
+
     with open(annotations_dataset) as handle:
-        pbar = tqdm(GOA.gafiterator(handle))
+        pbar = tqdm(GOA.gafiterator(handle), total=gaf_filelen, unit_scale=True)
         for rec in pbar:
-            pbar.set_description("Found {}".format(count))
+            pbar.set_description("Matches Found {}".format(count))
             if rec['Evidence'] in ok_evidence:
                 count += 1
                 rec_info = {'GeneID': rec['DB_Object_ID'], 'term': rec['GO_ID'], 'evidence': rec['Evidence'],

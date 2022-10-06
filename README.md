@@ -1,6 +1,31 @@
 # GOdatasets
 Process Gene Ontology annotation data
 
+
+## Usage
+### Set up
+After cloning this repo locally, set up dependecies:  
+`conda install tqdm`  
+We also need support for the GAF 2.2 file format, not supported in the current 
+release of [Biopython (1.79)](https://github.com/biopython/biopython).  
+Instead, we just copy the file that contains GAF parsing code from the commit that added support: 
+
+`wget https://raw.githubusercontent.com/biopython/biopython/ba5dfd472862c9efe797cdd6d5fe011e8cf96f0e/Bio/UniProt/GOA.py`
+
+
+### Getting Annotation Data
+To get GO annotations, `get_raw_annotations.sh` will:
+1. download GO Annotations from `ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz`,
+2. filter by experimental evidence codes,
+3. save records to json file.
+Run time is approx 1 hour on my server. The resulting json file is approximately 200MB
+
+### Getting Sequences
+To download protein sequences, `get_raw_sequences.sh` will:
+1. download Swiss-Prot and TrEMBL sequence data
+2. generate a SQL database for fast access to TrEMBL sequences
+Run time is approx 3.5 hours on my server.
+
 ## Background
 [The Gene Ontology](http://geneontology.org/docs/ontology-documentation/) provides a set of ontologies, a set of classes (terms) and relations between them, that describes the functions of genes. The ontology is comprised of three subontologies: Biological Process, Cellular Component, and Molecular Function.
 
@@ -12,30 +37,6 @@ Different types of evidence may be used to determine a term annotation for a gen
 
 ### Other available information
 The annotation data contains several fields in the GO Annotation File (GAF) 2.2 format. More information on these fields can be found here http://geneontology.org/docs/go-annotation-file-gaf-format-2.2/.
-
-## Environmnet
-Virtual environment created through conda using Python 3.8.5
-### Dependencies
-For data preprocessing:  
-* biopython 1.78
-
-## Download and process datasets
-
-To generate dataset, run the following two scripts. The two can be run in parallel to save time.
-
-To get GO annotations, `get_raw_annotations.sh` will:  
-1. download GO Annotations from `ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz`, 
-2. filter by experimental evidence codes, 
-3. save records to json file.   
-Run time is approx 1 hour on my server. The resulting json file is approximately 200MB  
-
-
-To download protein sequences, `get_raw_sequences.sh` will:  
-1. download Swiss-Prot and TrEMBL sequence data 
-2. generate a SQL database for fast access to TrEMBL sequences 
-Run time is approx 3.5 hours on my server.
-
-Modify these files to specify the data location and code location. The resulting database is approximately 16GB
 
 ## Alternatives and More info
 The GO annotations used here, and others, can be found here: https://www.uniprot.org/downloads.  
