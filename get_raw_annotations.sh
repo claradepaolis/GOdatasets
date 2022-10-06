@@ -1,7 +1,8 @@
 #!/bin/bash
 
-DATA_DIR="/data/$USER/dataset/raw"  # specify where to save data
+DATA_DIR="./GOdataset/raw"  # specify where to save data
 CODE_DIR="."  # specify code location
+mkdir -p $DATA_DIR
 cd $DATA_DIR
 
 # GO Annotation File (GAF) file (GCRP)
