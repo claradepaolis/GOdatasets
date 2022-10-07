@@ -5,7 +5,12 @@ Process Gene Ontology annotation data
 ## Usage
 ### Set up
 After cloning this repo locally, set up dependecies:  
-`conda install tqdm`  
+```
+conda install tqdm
+conda install pandas
+conda install -c biobuilds obonet
+```  
+
 We also need support for the GAF 2.2 file format, not supported in the current 
 release of [Biopython (1.79)](https://github.com/biopython/biopython).  
 Instead, we just copy the file that contains GAF parsing code from the commit that added support: 
@@ -14,11 +19,20 @@ Instead, we just copy the file that contains GAF parsing code from the commit th
 
 
 ### Getting Annotation Data
-To get GO annotations, `get_raw_annotations.sh` will:
-1. download GO Annotations from `ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz`,
-2. filter by experimental evidence codes,
-3. save records to json file.
-Run time is approx 1 hour on my server. The resulting json file is approximately 200MB
+To get GO annotations,  
+`python process_goa.py --species human` or `python process_goa.py --species all`
+
+This will  
+1. download GO Annotations from [http://geneontology.org/gene-associations](http://geneontology.org/gene-associations),  
+2. filter by experimental evidence codes (TAS, EXP, IC, IPI, IDA, IMP, IGI, IEP),  
+3. save records to json file.  
+4. propogate labeled annotations according to the onotology graph at [http://purl.obolibrary.org/obo/go/go-basic.obo](http://purl.obolibrary.org/obo/go/go-basic.obo) 
+5. save propogated annotaions to files, one for each subontology (BPO, CCO, and MFO) in json format
+
+
+This code creates a directory `GOAdata` under the source directory and will save all files there.
+To specify a different save location, use the `--dest` flag. 
+
 
 ### Getting Sequences
 To download protein sequences, `get_raw_sequences.sh` will:
