@@ -14,23 +14,28 @@ import obonet
 
 
 def file_length(filename):
-    return sum(1 for line in open(filename))
+    return sum(1 for line in open(filename, 'rb'))
 
 
 def download_gofile(source_path, save_path):
-    urllib.request.urlretrieve(source_path, filename=os.path.join(save_path))
-
+    if not os.path.exists(save_path):
+        urllib.request.urlretrieve(source_path, filename=os.path.join(save_path))
+    
     out_file = save_path.split('.gz')[0]
-    with gzip.open(save_path, 'rb') as f_in:
-        with open(out_file, 'wb') as f_out:
-            shutil.copyfileobj(f_in, f_out)
+    if not os.path.exists(out_file):
+        with gzip.open(save_path, 'rb') as f_in:
+            with open(out_file, 'wb') as f_out:
+                shutil.copyfileobj(f_in, f_out)
     return out_file
 
 
 def filter_evidence(annot_file, save_location):
     
     count = 0
-    ok_evidence = ['TAS', 'EXP', 'IC', 'IPI', 'IDA', 'IMP', 'IGI', 'IEP']
+    exp_evidence = ['EXP', 'IPI', 'IDA', 'IMP', 'IGI', 'IEP']
+    inferred_evidence = ['TAS', 'IC']
+    h_evidence = ['HTP', 'HDA', 'HMP', 'HGI', 'HEP']
+    ok_evicende = exp_evidence + inferred_evidence + h_evidence
     gaf_filelen = file_length(annot_file)
 
     with open(annot_file) as handle:
@@ -50,7 +55,11 @@ def filter_evidence(annot_file, save_location):
 def propogate_terms(annotation_file, save_location, db_name):
 
     # a couple known term replacements
-    obsolete_lookup={'GO:0006975':'GO:0042770', 'GO:0031617':'GO:0000776'}
+    obsolete_lookup={'GO:0006975':'GO:0042770', 
+                     'GO:0031617':'GO:0000776',
+                     'GO:1901720':'GO:1905560', 
+                     'GO:0034291':'GO:0140911', 'GO:0034290':'GO:0140911', 'GO:0034292':'GO:0140911',
+                     'GO:0004147':'GO:0043754'}
 
     def get_subontology(aspect):
         """aspect should be 'BPO', 'CCO', and 'MFO' respetively"""
@@ -79,7 +88,7 @@ def propogate_terms(annotation_file, save_location, db_name):
                     if term in obsolete_lookup:
                         term = obsolete_lookup[term]
                     else:
-                        print("Term not found")
+                        print(f'{term} Term not found')
                         continue
                 gene_terms = gene_terms.union(nx.descendants(subontology, term))
             
@@ -110,6 +119,7 @@ if __name__ == '__main__':
     # get raw annotations
     if args.species=='all':
         goa_file = 'goa_uniprot_gcrp.gaf.gz'
+        #goa_file = 'goa_uniprot_all.gaf.gz'
     elif args.species=='human':    
         goa_file = 'goa_human.gaf.gz'
 
@@ -117,17 +127,20 @@ if __name__ == '__main__':
 
 
     # download and decompress file
-    print(f'Downloading GO Annotation File (GAF) file {goa_file} from {file_source}')
     annot_file = os.path.join(data_location, goa_file)
-    annot_file = download_gofile(os.path.join(file_source,goa_file), annot_file)
-    print(f'Decompressed file location: {annot_file}')
+    
+    if not os.path.exists(annot_file):
+        print(f'Downloading GO Annotation File (GAF) file {goa_file} from {file_source}')    
+        annot_file = download_gofile(os.path.join(file_source,goa_file), annot_file)
+        print(f'Decompressed file location: {annot_file}')
  
 
     filtered_file=os.path.join(data_location, goa_file.split('.')[0]+'_exp.json')
-    print('GO Annotation File ready. Extracting annotations with experiment evidence codes')
-    print(f'Saving to {filtered_file}')
-
-    filter_evidence(annot_file, filtered_file) 
+    
+    if not os.path.exists(filtered_file):
+        print('GO Annotation File ready. Extracting annotations with experiment evidence codes')
+        print(f'Saving to {filtered_file}')
+        filter_evidence(annot_file, filtered_file) 
 
 
     propogate_terms(filtered_file, data_location, args.species)
