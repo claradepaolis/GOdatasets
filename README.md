@@ -1,6 +1,10 @@
 # GOdatasets
 Process Gene Ontology annotation data
 
+This code will download Gene Ontology annotations and filter them by evidence code and source database.  
+Once genes and annotations are processed (filtered), annotations will propogated for each gene so that a full labeling in the ontology is created.  
+Finally, sequences for the set proteins with annotations will be found in SwissProt (and optionally TrEMBL).
+
 
 ## Usage
 ### Set up
