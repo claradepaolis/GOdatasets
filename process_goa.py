@@ -35,36 +35,51 @@ def filter_evidence(annot_file, save_location):
     exp_evidence = ['EXP', 'IPI', 'IDA', 'IMP', 'IGI', 'IEP']
     inferred_evidence = ['TAS', 'IC']
     h_evidence = ['HTP', 'HDA', 'HMP', 'HGI', 'HEP']
-    ok_evicende = exp_evidence + inferred_evidence + h_evidence
+    ok_evidence = exp_evidence + h_evidence + inferred_evidence 
     gaf_filelen = file_length(annot_file)
 
     with open(annot_file) as handle:
         pbar = tqdm(GOA.gafiterator(handle), total=gaf_filelen, unit_scale=True)
         for rec in pbar:
             pbar.set_description("Matches Found {}".format(count))
-            if rec['Evidence'] in ok_evidence:
+            if rec['Evidence'] in ok_evidence and rec['DB']=='UniProtKB':
                 count += 1
-                rec_info = {'GeneID': rec['DB_Object_ID'], 'term': rec['GO_ID'], 'evidence': rec['Evidence'],
-                            'aspect': rec['Aspect'], 'synonym': rec['Synonym'], 'symbol': rec['DB_Object_Symbol'],
-                            'taxon': rec['Taxon_ID'], 'date': rec['Date']}
+                #rec_info = {'GeneID': rec['DB_Object_ID'], 'term': rec['GO_ID'], 'evidence': rec['Evidence'],
+                #            'aspect': rec['Aspect'], 'synonym': rec['Synonym'], 'symbol': rec['DB_Object_Symbol'],
+                #            'taxon': rec['Taxon_ID'], 'date': rec['Date']}
+                #with open(save_location, 'a', newline='') as f:
+                #    json.dump(rec_info, f)
+                #    f.write(os.linesep)     
+               
+                # save full records
                 with open(save_location, 'a', newline='') as f:
-                    json.dump(rec_info, f)
-                    f.write(os.linesep)     
+                    json.dump(rec, f)
+                    f.write(os.linesep) 
 
-
-def propogate_terms(annotation_file, save_location, db_name):
+def propogate_terms(annotation_file, save_location, db_name, obo_file=None):
 
     # a couple known term replacements
     obsolete_lookup={'GO:0006975':'GO:0042770', 
                      'GO:0031617':'GO:0000776',
                      'GO:1901720':'GO:1905560', 
                      'GO:0034291':'GO:0140911', 'GO:0034290':'GO:0140911', 'GO:0034292':'GO:0140911',
-                     'GO:0004147':'GO:0043754'}
+                     'GO:0004147':'GO:0043754',
+                     'GO:0044662':'GO:0051673',
+                     'GO:0044649':'GO:0051715',
+                     'GO:0050828':'GO:0043129',
+                     'GO:1990142':'GO:0044179',
+                     'GO:0102430':'GO:0102431'}
 
-    def get_subontology(aspect):
+    def get_subontology(aspect, obo):
         """aspect should be 'BPO', 'CCO', and 'MFO' respetively"""
+        
+        if obo is None:
+             obo = 'http://purl.obolibrary.org/obo/go/go-basic.obo'
+        obonet_graph = obonet.read_obo(obo)
+        # keep only "is_a" and "part_of" edges
+        remove_edges = [(i, j, k) for i, j, k in obonet_graph.edges if not(k=="is_a" or k=="part_of")]
+        obonet_graph.remove_edges_from(remove_edges)
 
-        obonet_graph = obonet.read_obo('http://purl.obolibrary.org/obo/go/go-basic.obo')
 
         subontology_roots = {'BPO':'GO:0008150',
                              'CCO':'GO:0005575',
@@ -79,11 +94,11 @@ def propogate_terms(annotation_file, save_location, db_name):
 
         db_file = os.path.join(save_location, f'{db_name}_{subontology}.json')
   
-        subontology = get_subontology(subontology)
+        subontology = get_subontology(subontology, obo_file)
 
-        for gene, annotations in tqdm(df[df.aspect==aspect].groupby('GeneID')):
+        for gene, annotations in tqdm(df[df.Aspect==aspect].groupby('DB_Object_ID')):
             gene_terms = set()
-            for term in annotations.term.values:
+            for term in annotations.GO_ID.values:
                 if term not in subontology:
                     if term in obsolete_lookup:
                         term = obsolete_lookup[term]
@@ -106,6 +121,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Download Gene Ontology annotations with experimental evidence codes and propogate labels')
     parser.add_argument('--species', '-s', default='all', help='either "human" or "all" to specify which file to download')
     parser.add_argument('--dest', '-d', default='GOAdata', help='Path to save raw and processed files. Will be created if does not exist.')    
+    parser.add_argument('--gaf', '-g', default=None, help='Path to GAF file with annotations. If none provided, will download from ebi.ac.uk')
+    parser.add_argument('--obo', '-o', default=None, help='Path to OBO graph file if local. If empty (default) current OBO structure at run-time will be downloaded from http://purl.obolibrary.org/obo/go/go-basic.obo')
     args = parser.parse_args()
     
     # set up save path
@@ -113,36 +130,46 @@ if __name__ == '__main__':
         data_location=path.join(os.getcwd(),'data')
     else:
         data_location=args.dest
-
+    
     os.makedirs(data_location, exist_ok=True)
 
+    # get ontology structure
+    if args.obo is not None:
+        obo_file = args.obo
+    else:
+        obo_file = None
+
     # get raw annotations
-    if args.species=='all':
-        goa_file = 'goa_uniprot_gcrp.gaf.gz'
-        #goa_file = 'goa_uniprot_all.gaf.gz'
-    elif args.species=='human':    
-        goa_file = 'goa_human.gaf.gz'
+    if args.gaf is not None:
+        goa_file = args.gaf
+    else:
+        if args.species=='all':
+            goa_file = 'goa_uniprot_all.gaf'
+            file_source = 'https://ftp.ebi.ac.uk/pub/databases/GO/goa/UNIPROT/'
 
-    file_source='http://geneontology.org/gene-associations/'
+        elif args.species=='human':    
+            goa_file = 'goa_human.gaf'
+            file_source ='https://ftp.ebi.ac.uk/pub/databases/GO/goa/HUMAN/'
 
-
-    # download and decompress file
-    annot_file = os.path.join(data_location, goa_file)
+        # download and decompress file
+        annot_file = os.path.join(data_location, goa_file)
     
-    if not os.path.exists(annot_file):
-        print(f'Downloading GO Annotation File (GAF) file {goa_file} from {file_source}')    
-        annot_file = download_gofile(os.path.join(file_source,goa_file), annot_file)
-        print(f'Decompressed file location: {annot_file}')
+        if not os.path.exists(annot_file):
+            print(f'Downloading GO Annotation File (GAF) file {goa_file} from {file_source}')    
+            annot_file = download_gofile(os.path.join(file_source,goa_file), annot_file)
+            print(f'Decompressed file location: {annot_file}')
  
-
-    filtered_file=os.path.join(data_location, goa_file.split('.')[0]+'_exp.json')
     
+    #output file
+    filtered_file=os.path.join(data_location, os.path.split(goa_file)[-1].split('.')[0]+'_exp.json')
+    
+    # save filtered evidence to file
     if not os.path.exists(filtered_file):
         print('GO Annotation File ready. Extracting annotations with experiment evidence codes')
         print(f'Saving to {filtered_file}')
-        filter_evidence(annot_file, filtered_file) 
+        filter_evidence(goa_file, filtered_file) 
 
 
-    propogate_terms(filtered_file, data_location, args.species)
+    propogate_terms(filtered_file, data_location, args.species, obo_file)
 
 
