@@ -59,3 +59,4 @@ The annotation data contains several fields in the GO Annotation File (GAF) 2.2 
 ## Alternatives and More info
 The GO annotations used here, and others, can be found here: https://www.uniprot.org/downloads.  
 You can find more information and READMEs for database files here and its subdirectories: https://ftp.uniprot.org/pub/databases/uniprot/. 
+
