@@ -27,8 +27,8 @@ To get GO annotations,
 `python process_goa.py --species human` or `python process_goa.py --species all`
 
 This will  
-1. download GO Annotations from [http://geneontology.org/gene-associations](http://geneontology.org/gene-associations),  
-2. filter by experimental evidence codes (TAS, EXP, IC, IPI, IDA, IMP, IGI, IEP),  
+1. download GO Annotations from [https://www.ebi.ac.uk/](https://www.ebi.ac.uk/),  
+2. filter by experimental, implied, and high-throughput evidence codes (TAS, EXP, IC, IPI, IDA, IMP, IGI, IEP),  
 3. save records to json file.  
 4. propogate labeled annotations according to the onotology graph at [http://purl.obolibrary.org/obo/go/go-basic.obo](http://purl.obolibrary.org/obo/go/go-basic.obo) 
 5. save propogated annotaions to files, one for each subontology (BPO, CCO, and MFO) in json format
@@ -51,7 +51,10 @@ Run time is approx 3.5 hours on my server.
 If a term appears as annotated for a gene, it means that this gene is believed to have this function. By processing these annotated terms, we can generate a dataset of genes and their ground truth labels for each term. The absence of a term annotation does not necessarily mean a gene _does not have this function_, only that this annotation does not exist (yet) in the GO.  
 
 ### Evidence
-Different types of evidence may be used to determine a term annotation for a gene. More information about evidence can be found here: http://geneontology.org/docs/guide-go-evidence-codes/. In this repo, we filter only terms with experimental evidence codes, but this can be modified within the file `process_goa.py`.   
+Different types of evidence may be used to determine a term annotation for a gene. More information about evidence can be found here: http://geneontology.org/docs/guide-go-evidence-codes/. In this repo, we filter for terms with experimental, implied, and high-throughput evidence codes ('EXP', 'IPI', 'IDA', 'IMP', 'IGI', 'IEP', 'TAS', 'IC', 'HTP', 'HDA', 'HMP', 'HGI', 'HEP'), but this can be modified within the file `process_goa.py`.   
+
+### Obsolete Annotate Terms 
+In some cases, the GO annotations contain terms that have been obsoleted and do not appear in the OBO graph. We have manually checked all obsolete terms that appear in the filtered set of annotations against the obsoleted comments in [AmiGO](http://amigo.geneontology.org/amigo/). When comments indicate a one-to-one replacement with another term, ie "GO:XXXXXXX replaced by GO:YYYYYYY, we make this substitution in the code and replace the obsolete term with its replacement. In many cases, a direct replacement is not available and we remove the obsolete term from the dataset. The details for each obsolete term are provided in the file `obsolete_terms.tsv`. Only those that include "replaced by" are replaced. All others are ignored. 
 
 ### Other available information
 The annotation data contains several fields in the GO Annotation File (GAF) 2.2 format. More information on these fields can be found here http://geneontology.org/docs/go-annotation-file-gaf-format-2.2/.
