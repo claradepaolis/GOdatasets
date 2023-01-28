@@ -1,0 +1,51 @@
+obsolete_term	comment
+GO:0000453	This term was obsoleted because it represents a molecular function. consider: GO:0006364
+GO:0005451	This term was obsoleted because it represents an unnecessary grouping term.
+GO:0006295	This term was obsoleted because it represents a molecular function. replaced by: GO:0006289
+GO:0006296	This term was obsoleted because it represents a molecular function    replaced by: GO:0006289
+GO:0006875	This is an unnecessary grouping class.replaced by: GO:0030003
+GO:0008022	It is out of GO scope. replaced by: GO:0005515
+GO:0008852	This term was obsoleted because it is the same function as single-stranded DNA 3'-5' exodeoxyribonuclease activity ; GO:0008310. replaced by: GO:0008310
+GO:0008853	This term was obsoleted because it is the same function as double-stranded DNA 3'-5' exodeoxy ribonuclease activity ; GO:0008311. replaced by: GO:0008311
+GO:0015298	OBSOLETE. Enables the transfer of a solute or solutes from one side of a membrane to the other according to the reaction: solute(out) + cation(in) = solute(in) + cation(out).
+GO:0015299	OBSOLETE. Enables the transfer of a solute or solutes from one side of a membrane to the other according to the reaction: solute(out) + H+(in) = solute(in) + H+(out).
+GO:0030004	This term was obsoleted because it is an unnecessary grouping class. replaced by: GO:0030003
+GO:0030320	This term was obsoleted because it is an unnecessary grouping class. replaced by: GO:0030002
+GO:0031997	It is beyond GO scope. replaced by: GO:0005515
+GO:0032199	This term was obsoleted because it represents a molecular function. replaced by: GO:0032197
+GO:0033501	This term was obsoleted because it does not specify whether it represent an intracellular or an organism-level process. consider: GO:0033502
+GO:0033561	This term was obsoleted because it represents a readout. consider: GO:0043589, consider: GO:0098773
+GO:0033683	This term was obsoleted because it represents a molecular function. replaced by: GO:0006289
+GO:0035511	This term was obsoleted because it represents a molecular function. consider: GO:0035516
+GO:0046916	This is an unnecessary grouping class. replaced by: GO:0030003
+GO:0047485	It is out of GO scope. replaced by: GO:0005515
+GO:0055065	This is an unnecessary grouping class. consider: GO:0030003
+GO:0055069	The reason for obsoletion is that the term is not clearly defined and usage has been inconsistent. For homeostasis terms, we would like to specify whether the homeostasis takes place intracellularly or at the level of the organism. consider: GO:0006882, consider: GO:0180002
+GO:0055076	This is an unnecessary grouping class. consider: GO:0030003
+GO:0070893	This term was obsoleted because it represents a readout. consider: GO:0032197, consider: GO:0006313
+GO:0070894	This term was obsoleted because it represents a readout. consider: GO:0032197, consider: GO:0006313
+GO:0070895	This term was obsoleted because it represents a readout. consider: GO:0032197, consider: GO:0006313
+GO:0070896	This term was obsoleted because it represents a readout. consider: GO:0032197, consider: GO:0006313
+GO:0072507	This term was obsoleted because it is an unnecessary grouping class. replaced by: GO:0055080
+GO:0097056	This term was obsoleted because it is the same process as GO:0001717 conversion of seryl-tRNAsec to selenocys-tRNAsec. replaced by: GO:0001717
+GO:0097273	This term was obsoleted because this process does not exist: creatinine is a waste product, there are no biological processes to maintain its level, although some mutants accumulate excesses. consider: GO:0003014
+GO:0097274	This term was obsoleted because this process does not exist: urea is a waste product, there are no biological processes to maintain its level, although some mutants accumulate excesses. consider: GO:0003014
+GO:0140323	This term was obsoleted because it is an unnecessary grouping class.
+GO:1903118	This term was obsoleted because this process does not exist: urea is a waste product, there are no biological processes to maintain its level, although some mutants accumulate excesses. consider: GO:0003014
+GO:1904008	This term was obsoleted because GCI patterns make it equivalent to response to L-glutamate; GO:1902065. consider: GO:1902065
+GO:1904009	This term was obsoleted because GCI patterns make it equivalent to cellular response to L-glutamate; GO:1905232. consider: GO:1905232
+GO:1904608	This term was obsoleted because GCI patterns make it equivalent to response to L-glutamate; GO:1902065. replaced by: GO:1902065
+GO:1904609	This term was obsoleted because GCI patterns make it equivalent to cellular response to L-glutamate; GO:1905232. consider: GO:1905232
+GO:1990731	This term was obsoleted because it represents a molecular function. replaced by: GO:0070914
+GO:0006975	replaced by GO:0042770
+GO:0031617	replaced by: GO:0000776
+GO:1901720	replaced by: GO:1905560
+GO:0034291	replaced by: GO:0140911
+GO:0034290	replaced by: GO:0140911
+GO:0034292	replaced by: GO:0140911
+GO:0004147	replaced by: GO:0043754
+GO:0044662	replaced by: GO:0051673
+GO:0044649	replaced by: GO:0051715
+GO:0050828	replaced by: GO:0043129
+GO:1990142	replaced by: GO:0044179
+GO:0102430	replaced by: GO:0102431
