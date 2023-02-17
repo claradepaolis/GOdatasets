@@ -137,11 +137,16 @@ if __name__ == '__main__':
     acceptable evidence codes. Specify data location in first input argument and GAF file name in the second argument.
     """
 
-    parser = argparse.ArgumentParser(description='Download Gene Ontology annotations with experimental evidence codes and propogate labels')
-    parser.add_argument('--species', '-s', default='all', help='either "human" or "all" to specify which file to download')
-    parser.add_argument('--dest', '-d', default='GOAdata', help='Path to save raw and processed files. Will be created if does not exist.')    
-    parser.add_argument('--gaf', '-g', default=None, help='Path to GAF file with annotations. If none provided, will download from ebi.ac.uk')
-    parser.add_argument('--obo', '-o', default=None, help='Path to OBO graph file if local. If empty (default) current OBO structure at run-time will be downloaded from http://purl.obolibrary.org/obo/go/go-basic.obo')
+    parser = argparse.ArgumentParser(
+        description='Download Gene Ontology annotations with experimental evidence codes and propogate labels')
+    parser.add_argument('--species', '-s', default='all', 
+                        help='either "human" or "all" to specify which file to download')
+    parser.add_argument('--dest', '-d', default='GOAdata', 
+                        help='Path to save raw and processed files. Will be created if does not exist.')    
+    parser.add_argument('--gaf', '-g', default=None, 
+                        help='Path to GAF file with annotations. If none provided, will download from ebi.ac.uk')
+    parser.add_argument('--obo', '-o', default=None, 
+                        help='Path to OBO graph file if local. If empty (default) current OBO structure at run-time will be downloaded from http://purl.obolibrary.org/obo/go/go-basic.obo')
     args = parser.parse_args()
     
     # set up save path

@@ -53,7 +53,7 @@ If a term appears as annotated for a gene, it means that this gene is believed t
 ### Evidence
 Different types of evidence may be used to determine a term annotation for a gene. More information about evidence can be found here: http://geneontology.org/docs/guide-go-evidence-codes/. In this repo, we filter for terms with experimental, implied, and high-throughput evidence codes ('EXP', 'IPI', 'IDA', 'IMP', 'IGI', 'IEP', 'TAS', 'IC', 'HTP', 'HDA', 'HMP', 'HGI', 'HEP'), but this can be modified within the file `process_goa.py`.   
 
-### Obsolete Annotate Terms 
+### Obsolete Annotated Terms 
 In some cases, the GO annotations contain terms that have been obsoleted and do not appear in the OBO graph. We have manually checked all obsolete terms that appear in the filtered set of annotations against the obsoleted comments in [AmiGO](http://amigo.geneontology.org/amigo/). When comments indicate a one-to-one replacement with another term, ie "GO:XXXXXXX replaced by GO:YYYYYYY, we make this substitution in the code and replace the obsolete term with its replacement. In many cases, a direct replacement is not available and we remove the obsolete term from the dataset. The details for each obsolete term are provided in the file `obsolete_terms.tsv`. Only those that include "replaced by" are replaced. All others are ignored. 
 
 ### Other available information
