@@ -12,8 +12,8 @@ Help()
    echo
    echo "Syntax: get_raw_sequences [-t]"
    echo "options:"
-   echo "h     Print this Help."
-   echo "t     Flag to download TrEMBL sequence database (large)."
+   echo "-h     Print this Help."
+   echo "-t     Flag to download TrEMBL sequence database (large)."
    echo
 }
 ############################################################

@@ -23,24 +23,22 @@ Help()
 ############################################################
 # Get the options
 species="all"
-echo "$species"
-while getopts ":h:s" option; do
+while getopts ":hs:" option; do
    case $option in
       h) # display Help
          Help
          exit;;
       s) # Species option
          species="$OPTARG";;
-      \?) # Invalid option
+     \?) # Invalid option
          echo "Error: Invalid option"
          exit;;
    esac
 done
-echo "$species"
-DATA_DIR="./GOdataset/raw"  # specify where to save data
+echo "Species: $species"
+DATA_DIR="./raw_data"  # specify where to save data
 CODE_DIR=$(pwd)  # specify code location
 mkdir -p $DATA_DIR
-cd $DATA_DIR
 
 species_file=goa_${species}.gaf.gz
 all_file=goa_uniprot_all.gaf.gz
@@ -50,17 +48,17 @@ else
  prefix=`echo ${species} | tr a-z A-Z`
  gaf_file=${prefix}"/"${species_file}
 fi
-echo $gaf_file
-exit;
 
 # GO Annotation File (GAF) file (GCRP)
 echo "============================================================"
 echo "Downloading GO Annotation File (GAF) file (GCRP subset): approx 2.7GB"
 echo "============================================================"
-wget ftp://ftp.ebi.ac.uk/pub/databases/GO/goa/$gaf_file
-gzip -d $gaf_file
+wget ftp://ftp.ebi.ac.uk/pub/databases/GO/goa/$gaf_file -P $DATA_DIR
+cd $DATA_DIR
+gzip -d $species_file
+basefile=$(basename ${species_file} ".gz")
 echo "============================================================"
-echo "GO Annotation File ready. Running 'python process_goa.py' to extract experiment evidence codes"
+echo "GO Annotation File ready." 
+echo "To filter annotations by experiment evidence codes and propagate labels, run"
+echo "python process_goa.py --gaf $DATA_DIR/$basefile"
 echo "============================================================"
-cd $CODE_DIR
-python process_goa.py $DATA_DIR goa_uniprot_gcrp.gaf

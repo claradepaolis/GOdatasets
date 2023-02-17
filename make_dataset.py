@@ -13,9 +13,8 @@ import networkx as nx
 import obonet
 from Bio import SeqIO
 import GOA
-from propagate_labels import propagate_terms
 from fasta_utils import read_fasta_sql
-
+from goa_utils import filter_evidence, clean_annotations, propagate_terms
 
 def file_length(filename):
     return sum(1 for line in open(filename, 'rb'))
@@ -31,56 +30,6 @@ def download_gofile(source_path, save_path):
             with open(out_file, 'wb') as f_out:
                 shutil.copyfileobj(f_in, f_out)
     return out_file
-
-
-def filter_evidence(annot_file, save_location):
-    
-    count = 0
-    exp_evidence = ['EXP', 'IPI', 'IDA', 'IMP', 'IGI', 'IEP']
-    inferred_evidence = ['TAS', 'IC']
-    h_evidence = ['HTP', 'HDA', 'HMP', 'HGI', 'HEP']
-    ok_evidence = exp_evidence + h_evidence + inferred_evidence 
-    gaf_filelen = file_length(annot_file)
-
-    with open(annot_file) as handle:
-        pbar = tqdm(GOA.gafiterator(handle), total=gaf_filelen, unit_scale=True)
-        for rec in pbar:
-            pbar.set_description("Matches Found {}".format(count))
-            if rec['Evidence'] in ok_evidence and rec['DB']=='UniProtKB':
-                count += 1
-
-                # save full records
-                with open(save_location, 'a', newline='') as f:
-                    json.dump(rec, f)
-                    f.write(os.linesep) 
-
-    return pd.read_json(save_location, lines=True) 
-
-
-def clean_annotations(filtered_annotations):
-    """ because some entried have multiple values of the column DB:Reference,
-        some terms (rows) are duplicated. We will get rid of these duplicates
-        and other columns we don't need, in particular columns that have lists
-        as values, which will prevent pandas from finding duplicates. 
-        We will also get rid of any negative labels ('NOT' in the qualifier)"""
-
-    annotations_df = filtered_annotations.drop(['DB:Reference', 'Synonym', 'With',
-                                                'Annotation_Extension', 'Gene_Product_Form_ID'], axis=1)
-
-    # The Qualifier column is a list that can contain two entries if the terms is NOT something
-    annotations_df['not_Qualifier'] = annotations_df.Qualifier.apply(lambda x: 'NOT' in x)
-    annotations_df['qualifier'] = annotations_df.Qualifier.apply(lambda x: x[-1])
-
-    # process taxonID to get just the number, eg '[taxon:9606]' becomes '9606'
-    annotations_df['species']=annotations_df.Taxon_ID.apply(lambda x: x[0].split(':')[-1])
-
-    annotations_df = annotations_df.drop(['Qualifier', 'Taxon_ID'],axis=1)
-    annotations_df = annotations_df.drop_duplicates()
-
-    # Exclude negative lables 
-    annotations_df = annotations_df[~annotations_df.not_Qualifier]
-   
-    return annotations_df
 
 
 def get_all_taxonomies(annotations_df):

@@ -1,7 +1,66 @@
+import os
+import json
+from tqdm import tqdm
+import pandas as pd
 from operator import itemgetter
 import obonet
-import networkx as nx 
-import pandas as pd
+import GOA
+import networkx as nx
+
+
+def file_length(filename):
+    return sum(1 for line in open(filename, 'rb'))
+
+
+def filter_evidence(annot_file, save_location):
+
+    count = 0
+    exp_evidence = ['EXP', 'IPI', 'IDA', 'IMP', 'IGI', 'IEP']
+    inferred_evidence = ['TAS', 'IC']
+    h_evidence = ['HTP', 'HDA', 'HMP', 'HGI', 'HEP']
+    ok_evidence = exp_evidence + h_evidence + inferred_evidence
+    gaf_filelen = file_length(annot_file)
+
+    with open(annot_file) as handle:
+        pbar = tqdm(GOA.gafiterator(handle), total=gaf_filelen, unit_scale=True)
+        for rec in pbar:
+            pbar.set_description("Matches Found {}".format(count))
+            if rec['Evidence'] in ok_evidence and rec['DB']=='UniProtKB':
+                count += 1
+
+                # save full records
+                with open(save_location, 'a', newline='') as f:
+                    json.dump(rec, f)
+                    f.write(os.linesep)
+
+    return pd.read_json(save_location, lines=True)
+
+
+def clean_annotations(filtered_annotations):
+    """ because some entried have multiple values of the column DB:Reference,
+        some terms (rows) are duplicated. We will get rid of these duplicates
+        and other columns we don't need, in particular columns that have lists
+        as values, which will prevent pandas from finding duplicates. 
+        We will also get rid of any negative labels ('NOT' in the qualifier)"""
+
+    annotations_df = filtered_annotations.drop(['DB:Reference', 'Synonym', 'With',
+                                                'Annotation_Extension', 'Gene_Product_Form_ID'], axis=1)
+
+    # The Qualifier column is a list that can contain two entries if the terms is NOT something
+    annotations_df['not_Qualifier'] = annotations_df.Qualifier.apply(lambda x: 'NOT' in x)
+    annotations_df['qualifier'] = annotations_df.Qualifier.apply(lambda x: x[-1])
+
+    # process taxonID to get just the number, eg '[taxon:9606]' becomes '9606'
+    annotations_df['species']=annotations_df.Taxon_ID.apply(lambda x: x[0].split(':')[-1])
+
+    annotations_df = annotations_df.drop(['Qualifier', 'Taxon_ID'],axis=1)
+    annotations_df = annotations_df.drop_duplicates()
+
+    # Exclude negative lables 
+    annotations_df = annotations_df[~annotations_df.not_Qualifier]
+
+    return annotations_df 
+
 
 def propagate_terms(df, obo_file):
     obsolete_replace={'GO:0006975':'GO:0042770',
@@ -33,7 +92,7 @@ def propagate_terms(df, obo_file):
                      'GO:0097056': 'GO:0001717',
                      'GO:1904608': 'GO:1902065',
                      'GO:1990731': 'GO:0070914'}
-        
+
     # load graph
     obonet_graph = obonet.read_obo(obo_file)
     # keep only "is_a" and "part_of" edges
@@ -44,16 +103,16 @@ def propagate_terms(df, obo_file):
     df.GO_ID = df.GO_ID.replace(obsolete_replace)
     # remove remaining obsolete
     obsolete_remove = set(df.GO_ID.values).difference(set(obonet_graph.nodes))
-        
+
     # look up ancestors once to save time
-    ancestor_lookup = {t: nx.descendants(obonet_graph,t) for t in df.GO_ID.unique() 
+    ancestor_lookup = {t: nx.descendants(obonet_graph,t) for t in df.GO_ID.unique()
                        if t in obonet_graph}
     obsolete_lookup = {t: set() for t in obsolete_remove}
     ancestor_lookup.update(obsolete_lookup)
 
     propagated_terms = []
     for aspect, subontology in zip(['P','C','F'], ['BPO', 'CCO', 'MFO']):
-        
+
         print(f'Processing {subontology} annotations')
 
         for gene, annotations in df[df.Aspect==aspect].groupby('DB_Object_ID'):
@@ -62,9 +121,9 @@ def propagate_terms(df, obo_file):
                 gene_terms = set(terms).union(*itemgetter(*set(terms))(ancestor_lookup))
             else:
                 gene_terms = set([terms[0]]).union(ancestor_lookup[terms[0]])
-            
+
             gene_terms -= obsolete_remove
             if len(gene_terms) >= 1:  # perhaps gene only had obsolete terms
                 propagated_terms.append({'EntryID': gene, 'term': list(gene_terms), 'aspect':subontology})
-                
+
     return pd.DataFrame(propagated_terms)
