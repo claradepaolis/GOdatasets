@@ -22,8 +22,7 @@ Instead, we just copy the file that contains GAF parsing code from the commit th
 `wget https://raw.githubusercontent.com/biopython/biopython/ba5dfd472862c9efe797cdd6d5fe011e8cf96f0e/Bio/UniProt/GOA.py`
 
 If also processing sequences, the complete Biopython package will be needed:
-```conda install -c conda-forge biopython 
-```
+`conda install -c conda-forge biopython`
 
 ### Annotation Data
 To get GO annotations,  
