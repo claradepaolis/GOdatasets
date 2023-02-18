@@ -1,8 +1,10 @@
 # GOdatasets
-Process Gene Ontology annotation data
+Process Gene Ontology annotation data and corresponding protein sequences.
 
-This code will download Gene Ontology annotations and filter them by evidence code and source database.  
+This code will download Gene Ontology annotations and filter them by evidence code and source database (UniProt).  
+
 Once genes and annotations are processed (filtered), annotations will propogated for each gene so that a full labeling in the ontology is created.  
+
 Finally, sequences for the set proteins with annotations will be found in SwissProt (and optionally TrEMBL).
 
 
@@ -14,12 +16,11 @@ To process annotations, you will need the following packages: pandas, networkx, 
 If using conda to install dependencies, obonet can be found in the biobuilds channel (`conda install -c biobuilds obonet`)
 
 We also need support for the [GAF 2.2 file format](http://geneontology.org/docs/go-annotation-file-gaf-format-2.2/), not supported in the current
-release of [Biopython (1.79)](https://github.com/biopython/biopython).  
-Instead, we just copy the file that contains GAF parsing code from the commit that added support: 
+release of [Biopython (1.79)](https://github.com/biopython/biopython).  Instead, we just copy the file that contains GAF parsing code from the commit that added support: 
 
 `wget https://raw.githubusercontent.com/biopython/biopython/ba5dfd472862c9efe797cdd6d5fe011e8cf96f0e/Bio/UniProt/GOA.py`
 
-If also processing sequences, the complete Biopython package will be needed:
+If also processing sequences, the complete Biopython package will be needed. If using conda, find it in the conda-forge channel:  
 `conda install -c conda-forge biopython`
 
 ### Annotation Data
@@ -34,8 +35,8 @@ To get GO annotations,
 #### Processing Annotations
 Once annotation file has been downloaded, process annotations with `process_goa.py`. This file will:  
 1. filter by experimental(EXP, IPI, IDA, IMP, IGI, IEP), inferred (IC), Traceable Author Statement (TAS), and (optionally) high-throughput evidence codes (HTP, HDA, HMP, HGI, HEP),  
-2. save records to json file.  
-3. propogate labeled annotations according to the onotology graph at [http://purl.obolibrary.org/obo/go/go-basic.obo](http://purl.obolibrary.org/obo/go/go-basic.obo) 
+2. save records to json file,  
+3. propogate labeled annotations according to the onotology graph at [http://purl.obolibrary.org/obo/go/go-basic.obo](http://purl.obolibrary.org/obo/go/go-basic.obo) or local file.
 
 To run, specify the location of the downloaded gaf file with the `--gaf` flag, for example    
 `python process_goa.py --gaf raw_data/goa_human.gaf`  
@@ -43,6 +44,8 @@ To run, specify the location of the downloaded gaf file with the `--gaf` flag, f
 To include high-throughput evidence codes, use the `--high` flag, for example  
 `python process_goa.py --gaf raw_data/goa_human.gaf --high`
 
+If you have a local ontology graph file (.obo), specify its path with the `--obo` flag:  
+`python process_goa.py --gaf raw_data/goa_human.gaf --obo raw_data/go.obo`
  
 ### Getting Sequences
 To download protein sequences, `get_raw_sequences.sh` will:
