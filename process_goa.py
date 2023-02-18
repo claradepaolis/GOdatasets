@@ -2,7 +2,7 @@ import os
 import argparse
 import pandas as pd
 import urllib
-from goa_utils import filter_evidence, clean_annotations, propagate_terms
+from parsers.goa_utils import filter_evidence, clean_annotations, propagate_terms
 
 
 def download_file(source_path, save_path):

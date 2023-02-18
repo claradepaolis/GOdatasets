@@ -13,8 +13,9 @@ import networkx as nx
 import obonet
 from Bio import SeqIO
 import GOA
-from fasta_utils import read_fasta_sql
-from goa_utils import filter_evidence, clean_annotations, propagate_terms
+from parsers.fasta_utils import read_fasta_sql
+from parsers.goa_utils import filter_evidence, clean_annotations, propagate_terms
+
 
 def file_length(filename):
     return sum(1 for line in open(filename, 'rb'))
