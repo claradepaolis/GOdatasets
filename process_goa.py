@@ -31,7 +31,8 @@ if __name__ == '__main__':
                         help='Path to GAF file with annotations.')
     parser.add_argument('--obo', '-o', default=None,
                         help='Path to OBO graph file if local. If empty (default) current OBO structure at run-time will be downloaded from http://purl.obolibrary.org/obo/go/go-basic.obo')
-    
+    parser.add_argument('--high', action='store_true',
+                        help='Flag to include high-throughput evidence codes')    
     args = parser.parse_args() 
     
     # get raw annotations
@@ -44,8 +45,7 @@ if __name__ == '__main__':
         data_location = args.dest
     else:
         data_location = os.path.split(goa_file)[0]
-    print(data_location)
-
+    
     # get ontology structure
     if args.obo is not None:
         obo_file = args.obo
@@ -53,7 +53,9 @@ if __name__ == '__main__':
         print('Downloading OBO file from http://purl.obolibrary.org/obo/go/go-basic.obo')
         obo_file = download_file('http://purl.obolibrary.org/obo/go/go-basic.obo', 
                                   os.path.join(data_location, 'go-basic.obo'))
-    print(obo_file)
+    
+    # high-throughput evidence codes
+    include_highthr = args.high
 
     # output file to save
     filtered_file=os.path.join(data_location, os.path.split(goa_file)[-1].split('.')[0]+'_evidence.json')
@@ -62,7 +64,7 @@ if __name__ == '__main__':
     if not os.path.exists(filtered_file):
         print('Extracting annotations with experiment evidence codes')
         print(f'Saving to {filtered_file}')
-        filtered_annotations = filter_evidence(goa_file, filtered_file)
+        filtered_annotations = filter_evidence(goa_file, filtered_file, highthr=include_highthr)
     else:
         print(f'Filtered evidence GO annotation file exists. Loading annotations from file {filtered_file}')
         filtered_annotations = pd.read_json(filtered_file, lines=True)

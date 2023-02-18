@@ -12,13 +12,16 @@ def file_length(filename):
     return sum(1 for line in open(filename, 'rb'))
 
 
-def filter_evidence(annot_file, save_location):
+def filter_evidence(annot_file, save_location, highthr=True):
 
     count = 0
     exp_evidence = ['EXP', 'IPI', 'IDA', 'IMP', 'IGI', 'IEP']
     inferred_evidence = ['TAS', 'IC']
     h_evidence = ['HTP', 'HDA', 'HMP', 'HGI', 'HEP']
-    ok_evidence = exp_evidence + h_evidence + inferred_evidence
+    ok_evidence = exp_evidence + inferred_evidence
+    if highthr:
+        ok_evidence += h_evidence
+    
     gaf_filelen = file_length(annot_file)
 
     with open(annot_file) as handle:
