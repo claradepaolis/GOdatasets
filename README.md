@@ -8,14 +8,11 @@ Finally, sequences for the set proteins with annotations will be found in SwissP
 
 ## Usage
 ### Set up
-After cloning this repo locally, set up dependecies:  
-```
-conda install tqdm
-conda install pandas
-conda install -c biobuilds obonet
-```  
+After cloning this repo locally, set up dependecies (see requirements.txt). 
+To process annotations, you will need the following packages: pandas, networkx, obonet, and tqdm.
+If using conda to install dependencies, obonet can be found in the biobuilds channel (`conda install -c biobuilds obonet`)
 
-We also need support for the GAF 2.2 file format, not supported in the current 
+We also need support for the [GAF 2.2 file format](), not supported in the current
 release of [Biopython (1.79)](https://github.com/biopython/biopython).  
 Instead, we just copy the file that contains GAF parsing code from the commit that added support: 
 
