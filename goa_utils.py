@@ -14,7 +14,6 @@ def file_length(filename):
 
 def filter_evidence(annot_file, save_location, highthr=True):
 
-    count = 0
     exp_evidence = ['EXP', 'IPI', 'IDA', 'IMP', 'IGI', 'IEP']
     inferred_evidence = ['TAS', 'IC']
     h_evidence = ['HTP', 'HDA', 'HMP', 'HGI', 'HEP']
@@ -24,17 +23,14 @@ def filter_evidence(annot_file, save_location, highthr=True):
     
     gaf_filelen = file_length(annot_file)
 
-    with open(annot_file) as handle:
+    with open(annot_file) as handle, open(save_location, 'a', newline='') as f:
         pbar = tqdm(GOA.gafiterator(handle), total=gaf_filelen, unit_scale=True)
         for rec in pbar:
-            pbar.set_description("Matches Found {}".format(count))
             if rec['Evidence'] in ok_evidence and rec['DB']=='UniProtKB':
-                count += 1
-
                 # save full records
-                with open(save_location, 'a', newline='') as f:
-                    json.dump(rec, f)
-                    f.write(os.linesep)
+                #with open(save_location, 'a', newline='') as f:
+                json.dump(rec, f)
+                f.write(os.linesep)
 
     return pd.read_json(save_location, lines=True)
 
