@@ -116,7 +116,7 @@ def propagate_terms(df, obo_file):
 
         for gene, annotations in df[df.Aspect==aspect].groupby('DB_Object_ID'):
             terms = annotations.GO_ID.values
-            if len(terms) > 1:
+            if len(set(terms)) > 1:
                 gene_terms = set(terms).union(*itemgetter(*set(terms))(ancestor_lookup))
             else:
                 gene_terms = set([terms[0]]).union(ancestor_lookup[terms[0]])
