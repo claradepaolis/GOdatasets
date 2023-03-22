@@ -54,9 +54,10 @@ echo "============================================================"
 echo "Downloading GO Annotation File (GAF) file (GCRP subset): approx 2.7GB"
 echo "============================================================"
 wget ftp://ftp.ebi.ac.uk/pub/databases/GO/goa/$gaf_file -P $DATA_DIR
+
 cd $DATA_DIR
-gzip -d $species_file
-basefile=$(basename ${species_file} ".gz")
+basefile=$(basename ${gaf_file} ".gz")
+gzip -d $basefile".gz"
 echo "============================================================"
 echo "GO Annotation File ready." 
 echo "To filter annotations by experiment evidence codes and propagate labels, run"
