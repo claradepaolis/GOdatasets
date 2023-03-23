@@ -2,7 +2,7 @@ import os
 import argparse
 import pandas as pd
 import urllib
-from parsers.goa_utils import filter_evidence, clean_annotations, propagate_terms
+from parsers.goa_utils import filter_evidence, clean_annotations, propagate_terms, get_all_taxonomies
 
 
 def download_file(source_path, save_path):
@@ -44,8 +44,12 @@ if __name__ == '__main__':
     if args.dest is not None:
         data_location = args.dest
     else:
-        data_location = os.path.split(goa_file)[0]
-    
+        data_location = '.' #os.path.split(goa_file)[0]
+   
+    # create destination file if it doesn't exist
+    if not os.path.isdir(data_location):
+        os.makedirs(data_location)
+ 
     # get ontology structure
     if args.obo is not None:
         obo_file = args.obo
@@ -56,6 +60,7 @@ if __name__ == '__main__':
     
     # high-throughput evidence codes
     include_highthr = args.high
+    print(f'Include high-throughput evidence codes? {include_highthr}')
 
     # output file to save
     filtered_file=os.path.join(data_location, os.path.split(goa_file)[-1].split('.')[0]+'_evidence.json')
@@ -86,4 +91,8 @@ if __name__ == '__main__':
     print(f'Saving terms to file {terms_file}')
     all_terms.to_csv(terms_file, index=False, sep='\t')
 
-
+    # Find taxonomies and save to file
+    taxdf = get_all_taxonomies(annotations_df)
+    taxonomy_file = os.path.join(data_location, 'taxonomy.tsv')
+    print(f'Saving terms to file {taxonomy_file}')
+    taxdf.to_csv(taxonomy_file, index=False, sep='\t')

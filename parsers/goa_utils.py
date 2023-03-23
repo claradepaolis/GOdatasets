@@ -126,3 +126,16 @@ def propagate_terms(df, obo_file):
                 propagated_terms.append({'EntryID': gene, 'term': list(gene_terms), 'aspect':subontology})
 
     return pd.DataFrame(propagated_terms)
+
+
+def get_all_taxonomies(annotations_df):
+
+    # get species for each protein
+    taxonomy_df = annotations_df[['DB_Object_ID', 'species']].drop_duplicates()
+    taxonomy_df = taxonomy_df.rename({'DB_Object_ID':'EntryID', 'species':'taxonomyID'}, axis=1)
+    # make sure there aren't repeated protein entries and all proteins are in list
+    assert len(taxonomy_df)==len(taxonomy_df.EntryID.unique()), 'Some taxonomy ID is duplicated'
+
+    return taxonomy_df
+
+
