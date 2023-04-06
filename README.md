@@ -23,13 +23,26 @@ release of [Biopython (1.79)](https://github.com/biopython/biopython).  Instead,
 If also processing sequences, the complete Biopython package will be needed. If using conda, find it in the conda-forge channel:  
 `conda install -c conda-forge biopython`
 
-### Annotation Data
-To get GO annotations,  
+### Getting Raw Data
+To download protein sequences, `fetch_current_release.sh` will:
+1. Create a directory with the current release name, eg 2023_01, and
+2. download Swiss-Prot and optionally TrEMBL sequence data (use the `-t` flag to enable. This is a large file that can take a long time to download and process).
+3. You can also generate a SQL index file for fast access sequences using UniProt ID (use the -i flag)
+
+The full UniProt ID mapping file can also be downloaded with the -m flag, but it is 20+ GB. Avoid downloading if not needed.  
+At this point you can also download the ful set of Gene Ontology annotations with the -g flag. 
+This will also download the current GO ontology structure file, go-basic.obo.
+
+If you only need a single species subset of the GO, use `get_raw_annotations.sh` instead
+ 
+
+### Annotation Data 
+To get GO annotations you can run the above when downloading sequences. Alternatively,  
 
 `get_raw_annotations.sh` will download Uniprot GO annotations from [https://ftp.ebi.ac.uk/pub/databases/GO/goa/](https://ftp.ebi.ac.uk/pub/databases/GO/goa/)
 
 `./get_raw_annotations.sh -s human` to download only human proteins.  Species name can also be any of the stand-alone species provided at the link above, eg. chicken, cow, mouse, etc.
-`./get_raw_annotations.sh` to get all proteins with annotations.  
+`./get_raw_annotations.sh` to get all proteins with annotations. This is the same file that will download when running `fetch_current_release.sh -g`
 
 
 #### Processing Annotations
@@ -46,11 +59,6 @@ To include high-throughput evidence codes, use the `--high` flag, for example
 
 If you have a local ontology graph file (.obo), specify its path with the `--obo` flag:  
 `python process_goa.py --gaf raw_data/goa_human.gaf --obo raw_data/go.obo`
- 
-### Getting Sequences
-To download protein sequences, `get_raw_sequences.sh` will:
-1. download Swiss-Prot and optionally TrEMBL sequence data (use the `-t` flag to enable. This is a large file that can take a long time to download and process)
-2. If TrEMBL data was downloaded, this will also generate a SQL database for fast access to TrEMBL sequences
 
 ## Background
 [The Gene Ontology](http://geneontology.org/docs/ontology-documentation/) provides a set of ontologies, a set of classes (terms) and relations between them, that describes the functions of genes. The ontology is comprised of three subontologies: Biological Process, Cellular Component, and Molecular Function.
