@@ -12,7 +12,6 @@ import pandas as pd
 import networkx as nx
 import obonet
 from Bio import SeqIO
-import GOA
 from parsers.fasta_utils import read_fasta_sql
 from parsers.goa_utils import filter_evidence, clean_annotations, propagate_terms
 
@@ -102,8 +101,8 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(
         description='Download Gene Ontology annotations with experimental evidence codes and propogate labels')
-    parser.add_argument('--raw', default='.', 
-                        help='Path to raw files for annotations, OBO, and fasta files')
+    #parser.add_argument('--raw', default='.', 
+    #                    help='Path to raw files for annotations, OBO, and fasta files')
     parser.add_argument('--dest', '-d', 
                         help='Path to save processed files. Will be created if does not exist.')    
     parser.add_argument('--gaf', '-g', default=None, 
@@ -118,14 +117,12 @@ if __name__ == '__main__':
     args = parser.parse_args()
     
     # set up save path
-    data_location = args.raw
- 
     if args.dest is None: 
         save_location=path.join(os.getcwd(),'data')
     else:
         save_location=args.dest
-    
-    os.makedirs(data_location, exist_ok=True) # create source dir in case we need to download any raw files
+     
+    #os.makedirs(data_location, exist_ok=True) # create source dir in case we need to download any raw files
     os.makedirs(save_location, exist_ok=True)
 
     # get ontology structure
@@ -138,12 +135,12 @@ if __name__ == '__main__':
     if args.gaf is not None:
         goa_file = args.gaf
     else:
-        goa_file = 'goa_uniprot_all.gaf'
+        goa_file = 'goa_uniprot_all.gaf.gz'
         file_source = 'https://ftp.ebi.ac.uk/pub/databases/GO/goa/UNIPROT/'
 
         # download and decompress file
-        annot_file = os.path.join(data_location, goa_file)
-    
+        annot_file = os.path.join(save_location, goa_file)
+        
         if not os.path.exists(annot_file):
             print(f'Downloading GO Annotation File (GAF) file {goa_file} from {file_source}')    
             annot_file = download_gofile(os.path.join(file_source,goa_file), annot_file)
@@ -151,10 +148,10 @@ if __name__ == '__main__':
  
     swissprot_file = args.swiss
     trembl_file = args.trembl
-    trembl_index_file = args.trembl.split('.fasta')[0]+'.idx'
+    trembl_index_file = args.trembl+'.idx'
 
     # output file to save
-    filtered_file=os.path.join(data_location, os.path.split(goa_file)[-1].split('.')[0]+'_evidence.json')
+    filtered_file=os.path.join(save_location, os.path.split(goa_file)[-1].split('.')[0]+'_evidence.json')
     
     # save filtered evidence to file
     if not os.path.exists(filtered_file):
@@ -172,9 +169,6 @@ if __name__ == '__main__':
     # Propagate labels to root and save to file
     print('Propagating annotations to ontology roots')
     terms_df = propagate_terms(annotations_df, obo_file) 
-    # In some cases, only obsolete terms are annotated for some protein
-    # so we get rid of any proteins without terms
-    annotations_df = annotations_df[annotations_df.DB_Object_ID.isin(terms_df.EntryID)]
     # expand list of terms to that each one is in one row
     all_terms = terms_df.explode('term').reset_index(drop=True) 
     terms_file = os.path.join(save_location, 'terms.tsv')

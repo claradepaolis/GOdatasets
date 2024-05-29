@@ -15,12 +15,7 @@ After cloning this repo locally, set up dependecies (see requirements.txt).
 To process annotations, you will need the following packages: pandas, networkx, obonet, and tqdm.  
 If using conda to install dependencies, obonet can be found in the biobuilds channel (`conda install -c biobuilds obonet`)
 
-We also need support for the [GAF 2.2 file format](http://geneontology.org/docs/go-annotation-file-gaf-format-2.2/), not supported in the current
-release of [Biopython (1.79)](https://github.com/biopython/biopython).  Instead, we just copy the file that contains GAF parsing code from the commit that added support: 
-
-`wget https://raw.githubusercontent.com/biopython/biopython/ba5dfd472862c9efe797cdd6d5fe011e8cf96f0e/Bio/UniProt/GOA.py`
-
-If also processing sequences, the complete Biopython package will be needed. If using conda, find it in the conda-forge channel:  
+If also processing sequences, the Biopython package will be needed. If using conda, find it in the conda-forge channel:  
 `conda install -c conda-forge biopython`
 
 ### Getting Raw Data

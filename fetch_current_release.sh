@@ -32,20 +32,20 @@ dl_TrEMBL=false
 dl_mapping=false
 create_index=false
 get_goa=false
-while getopts ":htmig" option; do
+while getopts ":htmig:" option; do
    case $option in
       h) # display Help
          Help
          exit;;
-     t) # TrEMBL option
+      t) # TrEMBL option
          dl_TrEMBL=true;;
-     m) # ID mapping file option
+      m) # ID mapping file option
          dl_mapping=true;;
-     i) 
+      i) 
          create_index=true;;
-     g)
+      g)
          get_goa=true;;
-     \?) # Invalid option
+      \?) # Invalid option
          echo "Error: Invalid option"
          exit;;
    esac
@@ -80,49 +80,71 @@ if [ ! -f reldate.txt ]; then
 fi
 
 # Sequence data
-if [ ! -f uniprot_sprot.fasta ]; then
+echo "create index" $create_index
+echo "trembl" $dl_TrEMBL
+echo "get goa" $get_goa
+
+if [[ -f "uniprot_sprot.fasta.gz" ]] || [[ -f "uniprot_sprot.fasta" ]]; then 
+ echo "release" $relname "file uniprot_sprot.fasta already exists"
+else
  echo "============================================================"
  echo "Downloading UniProtKB/Swiss-Prot fasta file: approx 86M"
  echo "============================================================"
  wget ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz
- if create_index; then
-  echo "============================================================"
-  echo "UniProtKB/Swiss-Prot fasta file downloaded. Processing to create SQLite lookup table"
-  echo "============================================================"
-  gzip -d uniprot_sprot.fasta.gz
-  python process_fasta.py --fasta uniprot_sprot.fasta 
- fi
- 
-else
- echo "release" $relname "file uniprot_sprot.fasta already exists"
 fi
 
 if $dl_TrEMBL; then
- if [ ! -f uniprot_trembl.fasta ]; then
+ if [[ -f "uniprot_trembl.fasta.gz" ]] || [[ -f "uniprot_trembl.fasta" ]]; then
+  echo "release" $relname "file uniprot_trembl.fasta already exists"
+ else
   echo "============================================================"
   echo "Downloading UniProtKB/TrEMBL fasta file: approx 47G"
   echo "============================================================"
   wget ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_trembl.fasta.gz
-  if create_index; then
+ fi
+fi
+
+if $create_index; then
+ if [[ -f "uniprot_sprot.fasta.gz" ]] || [[ -f "uniprot_sprot.fasta" ]]; then
+  if [[ -f "uniprot_sprot.fasta.idx" ]]; then
+   echo "============================================================"
+   echo "UniProtKB/Swiss-Prot index file uniprot_sprot.fasta.idx already exists"
+   echo "============================================================"
+  else 
+   echo "============================================================"
+   echo "UniProtKB/Swiss-Prot fasta file downloaded. Processing to create SQLite lookup table"
+   echo "============================================================"
+   gzip -d uniprot_sprot.fasta.gz
+   python ../process_fasta.py --fasta uniprot_sprot.fasta 
+  fi
+ fi
+
+ if [[ -f "uniprot_trembl.fasta.gz" ]] || [[ -f "uniprot_trembl.fasta" ]]; then
+  if [[ -f "uniprot_trembl.fasta.idx" ]]; then
+   echo "============================================================"
+   echo "UniProtKB/TrEMBL index file uniprot_trembl.fasta.idx already exists"
+   echo "============================================================"
+  else
    echo "============================================================"
    echo "UniProtKB/TrEMBL fasta file downloaded. Processing to create SQLite lookup table"
    echo "============================================================"
    gzip -d uniprot_trembl.fasta.gz
-   python process_fasta.py --fasta uniprot_trembl.fasta
-  else
-   echo "release" $release "file uniprot_trembl.fasta already exists"
+   python ../process_fasta.py --fasta uniprot_trembl.fasta
+  fi
  fi
- #echo "============================================================"
- #echo "Sequence files ready. Running 'python process_trembl.py' to create SQLite lookup table"
- #echo "============================================================"
- #cd $CODE_DIR
- #python process_trembl.py $DATA_DIR
 fi
 
+
 # GO annotations
-if get_goa; then
+if $get_goa; then
  wget -O goa_release_numbers.txt https://ftp.ebi.ac.uk/pub/databases/GO/goa/current_release_numbers.txt 
  wget https://ftp.ebi.ac.uk/pub/databases/GO/goa/UNIPROT/goa_uniprot_all.gaf.gz
- wget http://purl.obolibrary.org/obo/go/go-basic.obo
- wget http://purl.obolibrary.org/obo/go/go.obo
+
+ # Get the release date of the ontology and use it to name the OBO files 
+ wget -O go_reldate.json  http://current.geneontology.org/metadata/release-date.json
+ godate="$(cat go_reldate.json | grep -o ....-..-..)"
+  
+ wget -O go-basic-"$godate".obo http://current.geneontology.org/ontology/go-basic.obo
+ wget -O go-"$godate".obo http://current.geneontology.org/ontology/go.obo
 fi
+
